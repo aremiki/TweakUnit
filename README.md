@@ -84,7 +84,7 @@ TweakUnit is fully localized in the following languages:
 - 简体中文 (zhCN)
 - 繁體中文 (zhTW)
 
-Help us improve translations on our [GitHub repository](https://github.com/yourusername/TweakUnit)!
+Help us improve translations on our [GitHub repository](https://github.com/aremiki/TweakUnit)!
 
 ## Compatibility
 
@@ -105,8 +105,7 @@ TweakUnit is designed with performance in mind:
 
 Found a bug? Have a suggestion? We'd love to hear from you!
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/TweakUnit/issues)
-- **Feature Requests**: [GitHub Discussions](https://github.com/yourusername/TweakUnit/discussions)
+- **Issues**: [GitHub Issues](https://github.com/aremiki/TweakUnit/issues)
 - **CurseForge**: Leave a comment on the addon page
 
 ## Credits

@@ -111,14 +111,54 @@ end
 function TweakUnit:OnEnable()
     -- Hook for raid fade updates when range changes
     hooksecurefunc("CompactUnitFrame_UpdateInRange", function(frame)
-        self.RaidFrames:UpdateRaidFade()
+        self.RaidFrames:UpdateRaidFade(frame)
     end)
 
+    hooksecurefunc("CompactUnitFrame_SetUpFrame", function(frame)
+        self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+        self.RaidFrames:UpdateNameFonts(frame)
+        self.RaidFrames:UpdateHealthFonts(frame)
+    end)
+
+    -- Hook to maintain health font when health updates
+    hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
+        if frame and frame.statusText then
+            self.RaidFrames:UpdateHealthFonts(frame)
+        end
+    end)
+
+    -- Periodic check to ensure fonts stay correct (for edge cases like boss fights)
+    C_Timer.NewTicker(0.5, function()
+        local container = _G.CompactRaidFrameContainer
+        if container and container:IsShown() then
+            local frames = { container:GetChildren() }
+            for _, frame in ipairs(frames) do
+                if frame and frame:IsShown() and frame.statusText and frame.statusText.tweakUnitSize then
+                    -- Check if font size has been changed by Blizzard
+                    local _, currentSize = frame.statusText:GetFont()
+                    if currentSize ~= frame.statusText.tweakUnitSize then
+                        self.RaidFrames:UpdateHealthFonts(frame)
+                    end
+                end
+            end
+        end
+
+        -- Party frames
+        for i = 1, 5 do
+            local frame = _G["CompactPartyFrameMember"..i]
+            if frame and frame:IsShown() and frame.statusText and frame.statusText.tweakUnitSize then
+                local _, currentSize = frame.statusText:GetFont()
+                if currentSize ~= frame.statusText.tweakUnitSize then
+                    self.RaidFrames:UpdateHealthFonts(frame)
+                end
+            end
+        end
+    end)
     -- Register events
     self:RegisterEvent("PLAYER_LOGIN", "OnPlayerLogin")
     self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
-    self:RegisterEvent("GROUP_ROSTER_UPDATE", "OnGroupRosterUpdate")
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
 end
 
 
@@ -136,20 +176,16 @@ end
 function TweakUnit:OnPlayerEnteringWorld()
     -- Update raid frames when entering world (reload, zone change, etc.)
     C_Timer.After(0.5, function()
-        self.RaidFrames:UpdateTexture(self.db.profile.raid.texture)
-        self.RaidFrames:UpdateNameFonts()
-        self.RaidFrames:UpdateHealthFonts()
-        self.RaidFrames:UpdateRaidFade()
+        self.RaidFrames:UpdateAllTextures()
+        self.RaidFrames:UpdateAllNameFonts()
+        self.RaidFrames:UpdateAllHealthFonts()
     end)
 end
 
-function TweakUnit:OnGroupRosterUpdate()
-    -- Update raid frames and fade when group composition changes
+function TweakUnit:OnCombatEnd()
+    -- Reapply fonts after combat ends to fix any changes that happened during combat
     C_Timer.After(0.1, function()
-        self.RaidFrames:UpdateTexture(self.db.profile.raid.texture)
-        self.RaidFrames:UpdateNameFonts()
-        self.RaidFrames:UpdateHealthFonts()
-        self.RaidFrames:UpdateRaidFade()
+        self.RaidFrames:UpdateAllHealthFonts()
     end)
 end
 

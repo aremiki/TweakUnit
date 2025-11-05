@@ -29,7 +29,7 @@ TweakUnit.Options_Raid = {
             get = function() return TweakUnit.db.profile.raid.texture end,
             set = function(_, v)
                 TweakUnit.db.profile.raid.texture = v
-                TweakUnit.RaidFrames:UpdateTexture(v)
+                TweakUnit.RaidFrames:UpdateAllTextures()
             end,
         },
         
@@ -53,7 +53,7 @@ TweakUnit.Options_Raid = {
             end,
             set = function(_, v)
                 TweakUnit.db.profile.raid.fade.minAlpha = v
-                TweakUnit.RaidFrames:UpdateRaidFade()
+                TweakUnit.RaidFrames:UpdateAllFades()
             end
         },
         fadeMaxAlpha = {
@@ -70,7 +70,7 @@ TweakUnit.Options_Raid = {
             end,
             set = function(_, v)
                 TweakUnit.db.profile.raid.fade.maxAlpha = v
-                TweakUnit.RaidFrames:UpdateRaidFade()
+                TweakUnit.RaidFrames:UpdateAllFades()
             end
         },
         
@@ -99,7 +99,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, v)
                         TweakUnit.db.profile.raid.nameFont = v
-                        TweakUnit.RaidFrames:UpdateNameFonts()
+                        TweakUnit.RaidFrames:UpdateAllNameFonts()
                     end
                 },
                 nameFontSize = {
@@ -114,7 +114,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, v)
                         TweakUnit.db.profile.raid.nameFontSize = v
-                        TweakUnit.RaidFrames:UpdateNameFonts()
+                        TweakUnit.RaidFrames:UpdateAllNameFonts()
                     end
                 },
                 nameFontOutline = {
@@ -131,7 +131,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, v)
                         TweakUnit.db.profile.raid.nameFontOutline = v
-                        TweakUnit.RaidFrames:UpdateNameFonts()
+                        TweakUnit.RaidFrames:UpdateAllNameFonts()
                     end
                 }
             }
@@ -155,7 +155,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, v)
                         TweakUnit.db.profile.raid.healthFont = v
-                        TweakUnit.RaidFrames:UpdateHealthFonts()
+                        TweakUnit.RaidFrames:UpdateAllHealthFonts()
                     end
                 },
                 healthFontSize = {
@@ -170,7 +170,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, v)
                         TweakUnit.db.profile.raid.healthFontSize = v
-                        TweakUnit.RaidFrames:UpdateHealthFonts()
+                        TweakUnit.RaidFrames:UpdateAllHealthFonts()
                     end
                 },
                 healthFontOutline = {
@@ -187,7 +187,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, v)
                         TweakUnit.db.profile.raid.healthFontOutline = v
-                        TweakUnit.RaidFrames:UpdateHealthFonts()
+                        TweakUnit.RaidFrames:UpdateAllHealthFonts()
                     end
                 },
                 healthFontColor = {
@@ -201,7 +201,7 @@ TweakUnit.Options_Raid = {
                     end,
                     set = function(_, r, g, b, a)
                         TweakUnit.db.profile.raid.healthFontColor = {r=r, g=g, b=b, a=a or 1}
-                        TweakUnit.RaidFrames:UpdateHealthFonts()
+                        TweakUnit.RaidFrames:UpdateAllHealthFonts()
                     end
                 }
             }
