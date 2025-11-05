@@ -1,0 +1,32 @@
+## Interface: 110205
+## Title: TweakUnit
+## Notes: UI improvement for unitframes
+## Author: Dae
+## Version: 0.1.0
+## SavedVariables: TweakUnitDB
+## IconTexture: Interface\AddOns\TweakUnit\media\logoSmall.png
+
+## Category: Unit Frames
+## Category-deDE: Einheitenfenster
+## Category-esES: Marcos de unidades
+## Category-esMX: Marcos de unidades
+## Category-frFR: Portraits d'unités
+## Category-itIT: Riquadri delle unità
+## Category-koKR: 개체창
+## Category-ptBR: Quadros de unidade
+## Category-ruRU: Рамки юнитов
+## Category-zhCN: 单位框体
+## Category-zhTW: 單位框架
+
+embeds.xml
+locales.xml
+
+Core.lua
+
+modules/UnitFrames.lua
+modules/RaidFrames.lua
+
+Options/main.lua
+Options/Player.lua
+Options/Target.lua
+Options/Raid.lua
