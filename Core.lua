@@ -120,6 +120,21 @@ function TweakUnit:OnEnable()
         self.RaidFrames:UpdateHealthFonts(frame)
     end)
 
+    -- Hook when Blizzard sets up default textures (this resets our custom texture!)
+    -- Apply immediately without delay, like RaidFrameSettings does
+    hooksecurefunc("DefaultCompactUnitFrameSetup", function(frame)
+        if frame then
+            self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+        end
+    end)
+
+    -- Hook when all frames are updated (roster changes, etc.)
+    hooksecurefunc("CompactUnitFrame_UpdateAll", function(frame)
+        if frame then
+            self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+        end
+    end)
+
     -- Hook to maintain health font when health updates
     hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
         if frame and frame.statusText then
@@ -127,33 +142,6 @@ function TweakUnit:OnEnable()
         end
     end)
 
-    -- Periodic check to ensure fonts stay correct (for edge cases like boss fights)
-    C_Timer.NewTicker(0.5, function()
-        local container = _G.CompactRaidFrameContainer
-        if container and container:IsShown() then
-            local frames = { container:GetChildren() }
-            for _, frame in ipairs(frames) do
-                if frame and frame:IsShown() and frame.statusText and frame.statusText.tweakUnitSize then
-                    -- Check if font size has been changed by Blizzard
-                    local _, currentSize = frame.statusText:GetFont()
-                    if currentSize ~= frame.statusText.tweakUnitSize then
-                        self.RaidFrames:UpdateHealthFonts(frame)
-                    end
-                end
-            end
-        end
-
-        -- Party frames
-        for i = 1, 5 do
-            local frame = _G["CompactPartyFrameMember"..i]
-            if frame and frame:IsShown() and frame.statusText and frame.statusText.tweakUnitSize then
-                local _, currentSize = frame.statusText:GetFont()
-                if currentSize ~= frame.statusText.tweakUnitSize then
-                    self.RaidFrames:UpdateHealthFonts(frame)
-                end
-            end
-        end
-    end)
     -- Register events
     self:RegisterEvent("PLAYER_LOGIN", "OnPlayerLogin")
     self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
@@ -183,9 +171,11 @@ function TweakUnit:OnPlayerEnteringWorld()
 end
 
 function TweakUnit:OnCombatEnd()
-    -- Reapply fonts after combat ends to fix any changes that happened during combat
+    -- Reapply fonts and textures after combat ends to fix any changes that happened during combat
     C_Timer.After(0.1, function()
+        self.RaidFrames:UpdateAllNameFonts()
         self.RaidFrames:UpdateAllHealthFonts()
+        self.RaidFrames:UpdateAllTextures()
     end)
 end
 

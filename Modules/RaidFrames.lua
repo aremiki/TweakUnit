@@ -6,12 +6,14 @@ TweakUnit.RaidFrames.__index = TweakUnit.RaidFrames
 
 -- Apply texture to a single frame
 function TweakUnit.RaidFrames:UpdateTexture(frame, textureName)
+    if not frame or not frame.healthBar then return end
+
     local textures = TweakUnit:GetAvailableTextures()
     local texturePath = textures[textureName] or "Blizzard Raid Bar"
 
-    if frame and frame.healthBar then
-        frame.healthBar:SetStatusBarTexture(texturePath)
-    end
+    frame.healthBar:SetStatusBarTexture(texturePath)
+    -- Store texture path on the frame to detect when it changes
+    frame.healthBar.tweakUnitTexture = texturePath
 end
 
 function TweakUnit.RaidFrames:UpdateRaidFade(frame)
