@@ -32,7 +32,34 @@ TweakUnit.Options_Raid = {
                 TweakUnit.RaidFrames:UpdateAllTextures()
             end,
         },
-        
+        invertHealthBarColor = {
+            type = "toggle",
+            name = L["Invert Health Bar Colors"],
+            desc = L["Swap foreground and background colors of the health bar"],
+            order = 3,
+            get = function() return TweakUnit.db.profile.raid.invertHealthBarColor end,
+            set = function(_, v)
+                TweakUnit.db.profile.raid.invertHealthBarColor = v
+                TweakUnit.RaidFrames:UpdateAllHealthColors()
+            end,
+        },
+        invertedHealthBarColor = {
+            type = "color",
+            name = L["Inverted Health Bar Color"],
+            desc = L["Color to use for the health bar when inverted"],
+            hasAlpha = true,
+            order = 4,
+            disabled = function() return not TweakUnit.db.profile.raid.invertHealthBarColor end,
+            get = function()
+                local c = TweakUnit.db.profile.raid.invertedHealthBarColor
+                return c.r, c.g, c.b, c.a
+            end,
+            set = function(_, r, g, b, a)
+                TweakUnit.db.profile.raid.invertedHealthBarColor = {r=r, g=g, b=b, a=a or 1}
+                TweakUnit.RaidFrames:UpdateAllHealthColors()
+            end,
+        },
+
         -- Section Fade
         fadeHeader = {
             type = "header",

@@ -64,6 +64,8 @@ function TweakUnit:OnInitialize()
             },
             raid = {
                 texture = "Blizzard Raid Bar",
+                invertHealthBarColor = false,
+                invertedHealthBarColor = {r=0.3, g=0.3, b=0.3, a=1},
                 fade = {
                     minAlpha = 0.2,
                     maxAlpha = 1.0
@@ -118,6 +120,7 @@ function TweakUnit:OnEnable()
         self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
         self.RaidFrames:UpdateNameFonts(frame)
         self.RaidFrames:UpdateHealthFonts(frame)
+        self.RaidFrames:UpdateHealthBarColor(frame)
     end)
 
     -- Hook when Blizzard sets up default textures (this resets our custom texture!)
@@ -125,6 +128,7 @@ function TweakUnit:OnEnable()
     hooksecurefunc("DefaultCompactUnitFrameSetup", function(frame)
         if frame then
             self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+            self.RaidFrames:UpdateHealthBarColor(frame)
         end
     end)
 
@@ -132,6 +136,13 @@ function TweakUnit:OnEnable()
     hooksecurefunc("CompactUnitFrame_UpdateAll", function(frame)
         if frame then
             self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+        end
+    end)
+
+    -- Hook after Blizzard updates health color to reapply our inversion
+    hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
+        if frame then
+            self.RaidFrames:UpdateHealthBarColor(frame)
         end
     end)
 

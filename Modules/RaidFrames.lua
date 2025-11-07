@@ -14,6 +14,40 @@ function TweakUnit.RaidFrames:UpdateTexture(frame, textureName)
     frame.healthBar:SetStatusBarTexture(texturePath)
     -- Store texture path on the frame to detect when it changes
     frame.healthBar.tweakUnitTexture = texturePath
+
+    -- Also update background texture if invert colors is enabled
+    if TweakUnit.db.profile.raid.invertHealthBarColor and frame.background then
+        frame.background:SetTexture(texturePath)
+    end
+end
+
+-- Update health bar color inversion
+function TweakUnit.RaidFrames:UpdateHealthBarColor(frame)
+    if not frame or not frame.healthBar or not frame.unit then return end
+
+    -- Prevent infinite loop by checking if we're already updating this frame
+    if frame.healthBar.tweakUnitUpdating then return end
+
+    local invert = TweakUnit.db.profile.raid.invertHealthBarColor
+
+    if invert then
+        frame.healthBar.tweakUnitUpdating = true
+
+        -- Get current health bar color (foreground)
+        local r, g, b, a = frame.healthBar:GetStatusBarColor()
+
+        -- Apply foreground color to background
+        if frame.background then
+            frame.background:SetVertexColor(r, g, b)
+        end
+
+        -- Set health bar to custom color (inverted background look)
+        local color = TweakUnit.db.profile.raid.invertedHealthBarColor
+        frame.healthBar:SetStatusBarColor(color.r, color.g, color.b, color.a)
+
+        frame.healthBar.tweakUnitUpdating = false
+    end
+    -- If not inverted, do nothing and let Blizzard's default color system work
 end
 
 function TweakUnit.RaidFrames:UpdateRaidFade(frame)
@@ -118,6 +152,12 @@ end
 function TweakUnit.RaidFrames:UpdateAllHealthFonts()
     IterateAllFrames(function(frame)
         self:UpdateHealthFonts(frame)
+    end)
+end
+
+function TweakUnit.RaidFrames:UpdateAllHealthColors()
+    IterateAllFrames(function(frame)
+        self:UpdateHealthBarColor(frame)
     end)
 end
 
