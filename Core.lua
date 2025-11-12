@@ -4,7 +4,7 @@ local LDB = LibStub("LibDataBroker-1.1", true)
 local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
 local L = TweakUnit_Locale or {}
 
-SLASH_TweakUnit1 = "/ri"
+SLASH_TweakUnit1 = "/tu"
 SlashCmdList["TweakUnit"] = function()
     LibStub("AceConfigDialog-3.0"):Open("TweakUnit")
 end
@@ -18,15 +18,17 @@ TweakUnit.defaultTextures = {
     ["Default Player"] = "UI-HUD-UnitFrame-TargetofTarget-PortraitOn-Bar-Health"
 }
 
-local Media = LibStub("LibSharedMedia-3.0")
+local Media = LibStub("LibSharedMedia-3.0", true)
 
-AceGUIWidgetLSMlists = {
-	['font'] = Media:HashTable("font"),
-	['sound'] = Media:HashTable("sound"),
-	['statusbar'] = Media:HashTable("statusbar"),
-	['border'] = Media:HashTable("border"),
-	['background'] = Media:HashTable("background"),
-}
+if Media then
+	AceGUIWidgetLSMlists = {
+		['font'] = Media:HashTable("font"),
+		['sound'] = Media:HashTable("sound"),
+		['statusbar'] = Media:HashTable("statusbar"),
+		['border'] = Media:HashTable("border"),
+		['background'] = Media:HashTable("background"),
+	}
+end
 
 function TweakUnit:GetAvailableTextures()
     local textures = {}
@@ -52,7 +54,9 @@ function TweakUnit:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("TweakUnitDB", {
         profile = {
             miniMapButton = {
-                hide = false
+                hide = false,
+                minimapPos = 335,
+                radius = 80
             },
             player = {
                 classColor = false,
@@ -91,7 +95,7 @@ function TweakUnit:OnInitialize()
         local ldb = LDB:NewDataObject("TweakUnit", {
             type = "launcher",
             text = "TweakUnit",
-            icon = "Interface\\AddOns\\TweakUnit\\Media\\logosmall.png",
+            icon = "Interface\\AddOns\\TweakUnit\\media\\logosmall.png",
             OnClick = function(clickedframe, button)
                 if button == "LeftButton" then
                     LibStub("AceConfigDialog-3.0"):Open("TweakUnit")
@@ -104,7 +108,7 @@ function TweakUnit:OnInitialize()
         })
 
         if LDBIcon then
-            LDBIcon:Register("TweakUnit", ldb, self.db.profile.minimapButton)
+            LDBIcon:Register("TweakUnit", ldb, self.db.profile.miniMapButton)
         end
     end
 end
@@ -153,11 +157,29 @@ function TweakUnit:OnEnable()
         end
     end)
 
+    -- Hook when name updates to maintain name font
+    hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
+        if frame then
+            self.RaidFrames:UpdateNameFonts(frame)
+        end
+    end)
+
+    -- Hook when frames are displayed/shown
+    hooksecurefunc("CompactUnitFrame_UpdateVisible", function(frame)
+        if frame and frame:IsShown() then
+            self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+            self.RaidFrames:UpdateNameFonts(frame)
+            self.RaidFrames:UpdateHealthFonts(frame)
+            self.RaidFrames:UpdateHealthBarColor(frame)
+        end
+    end)
+
     -- Register events
     self:RegisterEvent("PLAYER_LOGIN", "OnPlayerLogin")
     self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
     self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
+    self:RegisterEvent("GROUP_ROSTER_UPDATE", "OnGroupRosterUpdate")
 end
 
 
@@ -187,6 +209,16 @@ function TweakUnit:OnCombatEnd()
         self.RaidFrames:UpdateAllNameFonts()
         self.RaidFrames:UpdateAllHealthFonts()
         self.RaidFrames:UpdateAllTextures()
+    end)
+end
+
+function TweakUnit:OnGroupRosterUpdate()
+    -- Update all raid frames when group composition changes
+    C_Timer.After(0.5, function()
+        self.RaidFrames:UpdateAllTextures()
+        self.RaidFrames:UpdateAllNameFonts()
+        self.RaidFrames:UpdateAllHealthFonts()
+        self.RaidFrames:UpdateAllHealthColors()
     end)
 end
 

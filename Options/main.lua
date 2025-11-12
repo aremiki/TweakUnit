@@ -19,10 +19,11 @@ function TweakUnit:SetupOptions()
                         name = L["Show Minimap Button"],
                         desc = L["Show or hide the minimap button"],
                         get = function() return not self.db.profile.miniMapButton.hide end,
-                        set = function(_, v) 
+                        set = function(_, v)
                             self.db.profile.miniMapButton.hide = not v
                             self:UpdateMinimapButton()
-                        end
+                        end,
+                        order = 1
                     }
                 }
             },

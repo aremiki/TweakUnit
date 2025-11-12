@@ -16,9 +16,9 @@ function TweakUnit.UnitFrames:UpdatePlayerClassColor(enabled)
     if not PlayerFrame or not PlayerFrame.healthbar then return end
 
     -- Apply texture
-    local textureName = TweakUnit.db.profile.player.texture or "Blizzard"
+    local textureName = TweakUnit.db.profile.player.texture or "Default Player"
     local textures = TweakUnit:GetAvailableTextures()
-    local texturePath = textures[textureName] or TweakUnit.defaultTextures["Blizzard"]
+    local texturePath = textures[textureName] or TweakUnit.defaultTextures["Default Player"]
     PlayerFrame.healthbar:SetStatusBarTexture(texturePath)
 
     if enabled then
@@ -59,7 +59,9 @@ function TweakUnit.UnitFrames:UpdateTargetClassColor(enabled)
         end
     else
         -- Restore default color based on unit type
-        if UnitIsPlayer("target") then
+        local textureName = TweakUnit.db.profile.target.texture or "Default Player"
+
+        if textureName == "Default Player" then
             TargetFrame.healthbar:SetStatusBarColor(1, 1, 1)
         else
             local reaction = UnitReaction("target", "player")

@@ -1,6 +1,6 @@
 local TweakUnit = LibStub("AceAddon-3.0"):GetAddon("TweakUnit")
 local L = _G.TweakUnit_Locale
-local LSM = LibStub("LibSharedMedia-3.0")
+local LSM = LibStub("LibSharedMedia-3.0", true)
 
 TweakUnit.Options_Raid = {
     type = "group",
@@ -118,10 +118,19 @@ TweakUnit.Options_Raid = {
                 nameFont = {
                     type = "select",
                     name = L["Fonts"],
-                    dialogControl = 'LSM30_Font',
-                    values = LSM:HashTable("font"),
+                    values = function()
+                        if LSM then
+                            local fonts = {}
+                            for _, name in pairs(LSM:List("font")) do
+                                fonts[name] = name
+                            end
+                            return fonts
+                        else
+                            return {["Friz Quadrata TT"] = "Friz Quadrata TT"}
+                        end
+                    end,
                     order = 1,
-                    get = function() 
+                    get = function()
                         return TweakUnit.db.profile.raid.nameFont
                     end,
                     set = function(_, v)
@@ -174,10 +183,19 @@ TweakUnit.Options_Raid = {
                 healthFont = {
                     type = "select",
                     name = L["Fonts"],
-                    dialogControl = 'LSM30_Font',
-                    values = LSM:HashTable("font"),
+                    values = function()
+                        if LSM then
+                            local fonts = {}
+                            for _, name in pairs(LSM:List("font")) do
+                                fonts[name] = name
+                            end
+                            return fonts
+                        else
+                            return {["Friz Quadrata TT"] = "Friz Quadrata TT"}
+                        end
+                    end,
                     order = 1,
-                    get = function() 
+                    get = function()
                         return TweakUnit.db.profile.raid.healthFont
                     end,
                     set = function(_, v)

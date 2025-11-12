@@ -2,7 +2,7 @@
 ## Title: TweakUnit
 ## Notes: UI improvement for unitframes
 ## Author: Dae
-## Version: 0.1.3
+## Version: 0.1.4
 ## SavedVariables: TweakUnitDB
 ## IconTexture: Interface\AddOns\TweakUnit\media\logoSmall.png
 

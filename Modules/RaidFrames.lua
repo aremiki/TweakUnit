@@ -52,9 +52,9 @@ end
 
 function TweakUnit.RaidFrames:UpdateRaidFade(frame)
     if not frame or not frame.optionTable.fadeOutOfRange then return end
-    local inRange, checkedRange = UnitInRange(frame.displayedUnit)
 
-    if checkedRange and not inRange then
+    -- Use frame.inDistance instead of UnitInRange (which is tainted in 12.0)
+    if not frame.inDistance then
         frame:SetAlpha(TweakUnit.db.profile.raid.fade.minAlpha)
         frame.background:SetAlpha(TweakUnit.db.profile.raid.fade.minAlpha)
     else
@@ -64,7 +64,12 @@ function TweakUnit.RaidFrames:UpdateRaidFade(frame)
 end
 
 function TweakUnit.RaidFrames:UpdateNameFonts(frame)
-    local font = LSM:Fetch("font", TweakUnit.db.profile.raid.nameFont or "Friz Quadrata TT")
+    local font
+    if LSM then
+        font = LSM:Fetch("font", TweakUnit.db.profile.raid.nameFont or "Friz Quadrata TT")
+    else
+        font = "Fonts\\FRIZQT__.TTF"
+    end
     local size = TweakUnit.db.profile.raid.nameFontSize or 12
     local outline = TweakUnit.db.profile.raid.nameFontOutline or "NONE"
     
@@ -92,7 +97,12 @@ end
 function TweakUnit.RaidFrames:UpdateHealthFonts(frame)
     if not frame or not frame.unit or not frame.statusText then return end
 
-    local font = LSM:Fetch("font", TweakUnit.db.profile.raid.healthFont or "Friz Quadrata TT")
+    local font
+    if LSM then
+        font = LSM:Fetch("font", TweakUnit.db.profile.raid.healthFont or "Friz Quadrata TT")
+    else
+        font = "Fonts\\FRIZQT__.TTF"
+    end
     local size = TweakUnit.db.profile.raid.healthFontSize or 10
     local outline = TweakUnit.db.profile.raid.healthFontOutline or "OUTLINE"
     local color = TweakUnit.db.profile.raid.healthFontColor
@@ -109,18 +119,35 @@ function TweakUnit.RaidFrames:UpdateHealthFonts(frame)
     frame.statusText.tweakUnitOutline = outline
 end
 
--- Helper function to iterate all visible raid/party frames
+-- Helper function to iterate all raid/party frames (even if not visible)
 local function IterateAllFrames(callback)
-    local count = 0
+    local processed = {}
 
-    -- Raid frames - the children ARE the individual player frames!
+    -- Fonction helper pour éviter de traiter la même frame deux fois
+    local function ProcessFrame(frame)
+        if frame and not processed[frame] then
+            processed[frame] = true
+            callback(frame)
+        end
+    end
+
+    -- Raid frames individuelles (CompactRaidGroup1Member1, etc.)
+    for group = 1, 8 do
+        for member = 1, 5 do
+            local frame = _G["CompactRaidGroup"..group.."Member"..member]
+            if frame then
+                ProcessFrame(frame)
+            end
+        end
+    end
+
+    -- Raid frames - parcourir TOUS les enfants du container, pas seulement ceux visibles
     local container = _G.CompactRaidFrameContainer
-    if container and container:IsShown() then
+    if container then
         local frames = { container:GetChildren() }
         for _, frame in ipairs(frames) do
-            if frame and frame:IsShown() and frame:GetObjectType() == "Button" then
-                count = count + 1
-                callback(frame)
+            if frame and frame:GetObjectType() == "Button" then
+                ProcessFrame(frame)
             end
         end
     end
@@ -128,9 +155,16 @@ local function IterateAllFrames(callback)
     -- Party frames
     for i = 1, 5 do
         local frame = _G["CompactPartyFrameMember"..i]
-        if frame and frame:IsShown() then
-            count = count + 1
-            callback(frame)
+        if frame then
+            ProcessFrame(frame)
+        end
+    end
+
+    -- Raid manager frames (CompactRaid1-40)
+    for i = 1, 40 do
+        local frame = _G["CompactRaidFrame"..i]
+        if frame then
+            ProcessFrame(frame)
         end
     end
 end
