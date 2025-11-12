@@ -195,11 +195,15 @@ function TweakUnit:OnTargetChanged()
 end
 
 function TweakUnit:OnPlayerEnteringWorld()
+    self.UnitFrames:UpdatePlayerClassColor(self.db.profile.player.classColor)
+    self.UnitFrames:UpdatePlayerTexture(self.db.profile.player.texture)
+
     -- Update raid frames when entering world (reload, zone change, etc.)
     C_Timer.After(0.5, function()
         self.RaidFrames:UpdateAllTextures()
         self.RaidFrames:UpdateAllNameFonts()
         self.RaidFrames:UpdateAllHealthFonts()
+        self.RaidFrames:UpdateAllHealthColors()
     end)
 end
 
@@ -209,6 +213,7 @@ function TweakUnit:OnCombatEnd()
         self.RaidFrames:UpdateAllNameFonts()
         self.RaidFrames:UpdateAllHealthFonts()
         self.RaidFrames:UpdateAllTextures()
+        self.RaidFrames:UpdateAllHealthColors()
     end)
 end
 
