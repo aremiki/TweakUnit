@@ -11,6 +11,8 @@ if locale == "ptBR" then
     L["Enable/disable class color on player frame"] = "Ativar/desativar cor de classe no quadro do jogador"
     L["Texture"] = "Textura"
     L["Select the healthbar texture"] = "Selecionar a textura da barra de vida"
+    L["Power Bar Texture"] = "Textura da barra de poder"
+    L["Select the power bar texture"] = "Selecionar a textura da barra de poder"
     L["Invert Health Bar Colors"] = "Inverter cores da barra de vida"
     L["Swap foreground and background colors of the health bar"] = "Trocar cores de primeiro plano e plano de fundo da barra de vida"
     L["Inverted Health Bar Color"] = "Cor da barra de vida invertida"

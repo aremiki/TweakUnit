@@ -11,6 +11,8 @@ if locale == "zhCN" then
     L["Enable/disable class color on player frame"] = "启用/禁用玩家框架的职业颜色"
     L["Texture"] = "材质"
     L["Select the healthbar texture"] = "选择生命条材质"
+    L["Power Bar Texture"] = "能量条材质"
+    L["Select the power bar texture"] = "选择能量条材质"
     L["Invert Health Bar Colors"] = "反转生命条颜色"
     L["Swap foreground and background colors of the health bar"] = "交换生命条的前景色和背景色"
     L["Inverted Health Bar Color"] = "反转的生命条颜色"

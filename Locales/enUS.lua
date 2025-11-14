@@ -11,6 +11,8 @@ if locale == "enUS" or locale == "enGB" then
     L["Enable/disable class color on player frame"] = "Enable/disable class color on player frame"
     L["Texture"] = "Texture"
     L["Select the healthbar texture"] = "Select the healthbar texture"
+    L["Power Bar Texture"] = "Power Bar Texture"
+    L["Select the power bar texture"] = "Select the power bar texture"
     L["Invert Health Bar Colors"] = "Invert Health Bar Colors"
     L["Swap foreground and background colors of the health bar"] = "Swap foreground and background colors of the health bar"
     L["Inverted Health Bar Color"] = "Inverted Health Bar Color"

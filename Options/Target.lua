@@ -34,6 +34,25 @@ TweakUnit.Options_Target = {
                 TweakUnit.db.profile.target.texture = v
                 TweakUnit.UnitFrames:UpdateTargetTexture(v)
             end,
+        },
+        powerTexture = {
+            type = "select",
+            name = L["Power Bar Texture"],
+            desc = L["Select the power bar texture"],
+            order = 3,
+            values = function()
+                local textures = TweakUnit:GetAvailableTextures()
+                local textureList = {}
+                for name, _ in pairs(textures) do
+                    textureList[name] = name
+                end
+                return textureList
+            end,
+            get = function() return TweakUnit.db.profile.target.powerTexture end,
+            set = function(_, v)
+                TweakUnit.db.profile.target.powerTexture = v
+                TweakUnit.UnitFrames:UpdateTargetPowerTexture(v)
+            end,
         }
     }
 }

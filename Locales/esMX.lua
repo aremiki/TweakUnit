@@ -11,6 +11,8 @@ if locale == "esMX" then
     L["Enable/disable class color on player frame"] = "Activar/desactivar el color de clase en el marco del jugador"
     L["Texture"] = "Textura"
     L["Select the healthbar texture"] = "Seleccionar la textura de la barra de salud"
+    L["Power Bar Texture"] = "Textura de la barra de poder"
+    L["Select the power bar texture"] = "Seleccionar la textura de la barra de poder"
     L["Invert Health Bar Colors"] = "Invertir colores de la barra de salud"
     L["Swap foreground and background colors of the health bar"] = "Intercambiar colores de primer plano y fondo de la barra de salud"
     L["Inverted Health Bar Color"] = "Color de barra de salud invertida"

@@ -60,11 +60,13 @@ function TweakUnit:OnInitialize()
             },
             player = {
                 classColor = false,
-                texture = "Default Player"
+                texture = "Default Player",
+                powerTexture = "Solid"
             },
             target = {
                 classColor = false,
-                texture = "Default Player"
+                texture = "Default Player",
+                powerTexture = "Solid"
             },
             raid = {
                 texture = "Blizzard Raid Bar",
@@ -114,23 +116,58 @@ function TweakUnit:OnInitialize()
 end
 
 
+-- Helper function to check if a frame is a raid/party frame (not a nameplate)
+local function IsRaidOrPartyFrame(frame)
+    if not frame then return false end
+
+    -- Exclude nameplates - they have namePlateUnitToken
+    if frame.namePlateUnitToken then
+        return false
+    end
+
+    -- Exclude nameplates - check parent chain for NamePlate
+    local parent = frame:GetParent()
+    if parent then
+        local parentName = parent:GetName()
+        if parentName and string.match(parentName, "NamePlate") then
+            return false
+        end
+    end
+
+    -- Only accept frames with specific raid/party frame names
+    local frameName = frame:GetName()
+    if not frameName then return false end
+
+    -- Match CompactRaidFrame or CompactPartyFrame patterns
+    if string.match(frameName, "^CompactRaidFrame%d") or
+       string.match(frameName, "^CompactPartyFrame%d") then
+        return true
+    end
+
+    return false
+end
+
 function TweakUnit:OnEnable()
     -- Hook for raid fade updates when range changes
     hooksecurefunc("CompactUnitFrame_UpdateInRange", function(frame)
-        self.RaidFrames:UpdateRaidFade(frame)
+        if IsRaidOrPartyFrame(frame) then
+            self.RaidFrames:UpdateRaidFade(frame)
+        end
     end)
 
     hooksecurefunc("CompactUnitFrame_SetUpFrame", function(frame)
-        self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
-        self.RaidFrames:UpdateNameFonts(frame)
-        self.RaidFrames:UpdateHealthFonts(frame)
-        self.RaidFrames:UpdateHealthBarColor(frame)
+        if IsRaidOrPartyFrame(frame) then
+            self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
+            self.RaidFrames:UpdateNameFonts(frame)
+            self.RaidFrames:UpdateHealthFonts(frame)
+            self.RaidFrames:UpdateHealthBarColor(frame)
+        end
     end)
 
     -- Hook when Blizzard sets up default textures (this resets our custom texture!)
     -- Apply immediately without delay, like RaidFrameSettings does
     hooksecurefunc("DefaultCompactUnitFrameSetup", function(frame)
-        if frame then
+        if IsRaidOrPartyFrame(frame) then
             self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
             self.RaidFrames:UpdateHealthBarColor(frame)
         end
@@ -138,41 +175,71 @@ function TweakUnit:OnEnable()
 
     -- Hook when all frames are updated (roster changes, etc.)
     hooksecurefunc("CompactUnitFrame_UpdateAll", function(frame)
-        if frame then
+        if IsRaidOrPartyFrame(frame) then
             self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
         end
     end)
 
     -- Hook after Blizzard updates health color to reapply our inversion
     hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
-        if frame then
+        if IsRaidOrPartyFrame(frame) then
             self.RaidFrames:UpdateHealthBarColor(frame)
         end
     end)
 
     -- Hook to maintain health font when health updates
     hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
-        if frame and frame.statusText then
+        if IsRaidOrPartyFrame(frame) and frame.statusText then
             self.RaidFrames:UpdateHealthFonts(frame)
         end
     end)
 
     -- Hook when name updates to maintain name font
     hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
-        if frame then
+        if IsRaidOrPartyFrame(frame) then
             self.RaidFrames:UpdateNameFonts(frame)
         end
     end)
 
     -- Hook when frames are displayed/shown
     hooksecurefunc("CompactUnitFrame_UpdateVisible", function(frame)
-        if frame and frame:IsShown() then
+        if IsRaidOrPartyFrame(frame) and frame:IsShown() then
             self.RaidFrames:UpdateTexture(frame, self.db.profile.raid.texture)
             self.RaidFrames:UpdateNameFonts(frame)
             self.RaidFrames:UpdateHealthFonts(frame)
             self.RaidFrames:UpdateHealthBarColor(frame)
         end
     end)
+
+    -- Hook power bar updates to maintain texture/color during prediction and updates
+    hooksecurefunc("UnitFrameManaBar_Update", function(manaBar)
+        if manaBar then
+            local frame = manaBar:GetParent()
+            if frame == PlayerFrame then
+                self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+            elseif frame == TargetFrame then
+                self.UnitFrames:UpdateTargetPowerTexture(self.db.profile.target.powerTexture)
+            end
+        end
+    end)
+
+    hooksecurefunc("UnitFrameManaBar_UpdateType", function(manaBar)
+        if manaBar then
+            local frame = manaBar:GetParent()
+            if frame == PlayerFrame then
+                self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+            elseif frame == TargetFrame then
+                self.UnitFrames:UpdateTargetPowerTexture(self.db.profile.target.powerTexture)
+            end
+        end
+    end)
+
+    -- Hook AlternatePowerBar when it shows
+    if AlternatePowerBar then
+        AlternatePowerBar:HookScript("OnShow", function()
+            self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+        end)
+    end
 
     -- Register events
     self:RegisterEvent("PLAYER_LOGIN", "OnPlayerLogin")
@@ -180,23 +247,40 @@ function TweakUnit:OnEnable()
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
     self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnCombatEnd")
     self:RegisterEvent("GROUP_ROSTER_UPDATE", "OnGroupRosterUpdate")
+    self:RegisterEvent("UNIT_POWER_UPDATE", "OnUnitPowerUpdate")
+    self:RegisterEvent("UNIT_POWER_FREQUENT", "OnUnitPowerUpdate")
+    self:RegisterEvent("UNIT_DISPLAYPOWER", "OnUnitDisplayPower")
+    self:RegisterEvent("RUNE_POWER_UPDATE", "OnRunePowerUpdate")
+    self:RegisterEvent("CURRENT_SPELL_CAST_CHANGED", "OnSpellCastChanged")
 end
 
 
 function TweakUnit:OnPlayerLogin()
     self.UnitFrames:UpdatePlayerClassColor(self.db.profile.player.classColor)
     self.UnitFrames:UpdatePlayerTexture(self.db.profile.player.texture)
+
+    -- Delay power bar updates to ensure frames are fully initialized
+    C_Timer.After(1.0, function()
+        self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+    end)
+
     self:UpdateMinimapButton()
 end
 
 function TweakUnit:OnTargetChanged()
     self.UnitFrames:UpdateTargetClassColor(self.db.profile.target.classColor)
     self.UnitFrames:UpdateTargetTexture(self.db.profile.target.texture)
+    self.UnitFrames:UpdateTargetPowerTexture(self.db.profile.target.powerTexture)
 end
 
 function TweakUnit:OnPlayerEnteringWorld()
     self.UnitFrames:UpdatePlayerClassColor(self.db.profile.player.classColor)
     self.UnitFrames:UpdatePlayerTexture(self.db.profile.player.texture)
+
+    -- Delay power bar updates to ensure frames are fully initialized
+    C_Timer.After(1.0, function()
+        self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+    end)
 
     -- Update raid frames when entering world (reload, zone change, etc.)
     C_Timer.After(0.5, function()
@@ -225,6 +309,32 @@ function TweakUnit:OnGroupRosterUpdate()
         self.RaidFrames:UpdateAllHealthFonts()
         self.RaidFrames:UpdateAllHealthColors()
     end)
+end
+
+function TweakUnit:OnUnitPowerUpdate(event, unitTarget)
+    if unitTarget == "player" then
+        self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+    elseif unitTarget == "target" then
+        self.UnitFrames:UpdateTargetPowerTexture(self.db.profile.target.powerTexture)
+    end
+end
+
+function TweakUnit:OnUnitDisplayPower(event, unitTarget)
+    if unitTarget == "player" then
+        self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+    elseif unitTarget == "target" then
+        self.UnitFrames:UpdateTargetPowerTexture(self.db.profile.target.powerTexture)
+    end
+end
+
+function TweakUnit:OnRunePowerUpdate()
+    -- RUNE_POWER_UPDATE doesn't pass a unit, it's always for the player (Death Knight specific)
+    self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
+end
+
+function TweakUnit:OnSpellCastChanged()
+    -- Reapply power texture when spell cast changes (includes preview/prediction)
+    self.UnitFrames:UpdatePlayerPowerTexture(self.db.profile.player.powerTexture)
 end
 
 function TweakUnit:UpdateMinimapButton()

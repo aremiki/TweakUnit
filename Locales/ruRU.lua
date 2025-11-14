@@ -11,6 +11,8 @@ if locale == "ruRU" then
     L["Enable/disable class color on player frame"] = "Включить/выключить цвет класса на рамке игрока"
     L["Texture"] = "Текстура"
     L["Select the healthbar texture"] = "Выберите текстуру полосы здоровья"
+    L["Power Bar Texture"] = "Текстура полосы силы"
+    L["Select the power bar texture"] = "Выберите текстуру полосы силы"
     L["Invert Health Bar Colors"] = "Инвертировать цвета полосы здоровья"
     L["Swap foreground and background colors of the health bar"] = "Поменять местами цвета переднего плана и фона полосы здоровья"
     L["Inverted Health Bar Color"] = "Цвет инвертированной полосы здоровья"
